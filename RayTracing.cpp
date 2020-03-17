@@ -11,22 +11,34 @@ ReadInputFile readInputFile("test1.in");
 RayTracing tracer;
 SphereIntersection sphereIntersection;
 vec3 backgroundColor = vec3(0.5, 0.5, 0.5);
+
 int main()
 {
 	int columns = readInputFile.getWidth();
 	int rows = readInputFile.getHeight();
 	Camera camera = readInputFile.getCamera();
 
+	vec3** arr = new vec3*[rows];
+	for (int i = 0; i < rows; i++) {
+		arr[i] = new vec3[columns];
+	}
+	float h = 2 * tan(camera.fovy / 2);
+	float a = columns / rows;
+	float w = h * a;
+	vec3 cz = -normalize(camera.at - camera.eye);
+	vec3 cx = normalize(cross(camera.up, cz));
+	vec3 cy = cross(cz, cx);
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < columns; j++) {
-			vec3 pixel = vec3(i, j, 0);
+			float px = w * j / columns - w / 2;
+			float py = -h * i / rows + h / 2;
+			vec3 pixel = camera.eye + px * cx + py * cy + (-1.7)*cz;
 			Ray ray(camera.eye, pixel);
 			vec3 color = tracer.trace(ray);
-			writePixel(i, j, color);
+			arr[i][j] = color;
 		}
 	}
-	
-	
+	tracer.outputToPPM(arr);
 }
 
 vec3 RayTracing::trace(Ray &ray) {
@@ -38,23 +50,38 @@ vec3 RayTracing::trace(Ray &ray) {
 		float t = sphereIntersection.intersect(sceneObj.center, sceneObj.radius, ray);
 		tValues.push_back(t);
 	}
-	if (tValues.size() == 0) {
+	bool temp = false;
+	for (int i = 0; i < tValues.size(); i++) {
+		if (tValues[i] >= 0) {
+			temp = true;
+		}
+	}
+	if (!temp) {
 		return backgroundColor;
 	}
 	else {
 		int whichObj = 0;
-		float min = tValues[0];
+		float min = FLT_MAX;
 		for (int i = 0; i < tValues.size(); i++) {
-			if (tValues[i] >= 0 && tValues[i] < min) {
+			if (tValues[i] >= 0 && tValues[i] <= min) {
 				min = tValues[i];
 				whichObj = i;
 			}
 		}
 		vec3 P = sphereIntersection.intersectionPoint(ray, min);
-		//TODO normal tekrar bak eksi icin
+		//TODO check backward normals
 		vec3 normal = normalize(P - sceneObjects[whichObj].center);
 		vector<LightSource> lightSources = readInputFile.getLightSources();
-		for (int i = 0; i < lightSources.size(); i++) {
+
+		LightSource ambient = lightSources[0];
+		vec3 ambientIntensity = vec3(ambient.Ir, ambient.Ig, ambient.Ib);
+		Surface surface = readInputFile.getSurfaces()[sceneObjects[whichObj].surfaceNum];
+		vec3 Ia = ambientIntensity * surface.ka;
+		Pigment pigment = readInputFile.getPigments()[sceneObjects[whichObj].pigmentNum];
+		vec3 pigmentColor = vec3(pigment.r, pigment.g, pigment.b);
+		localC = Ia * pigmentColor;
+
+		for (int i = 1; i < lightSources.size(); i++) {
 			if (isVisible(P, lightSources[i])) {
 				localC += phong(P, lightSources[i], normal, sceneObjects[whichObj]);
 			}
@@ -78,20 +105,39 @@ bool RayTracing::isVisible(vec3 point, LightSource lightSource) {
 }
 
 vec3 RayTracing::phong(vec3 P, LightSource lightSource, vec3 normal, SceneObj sceneObj) {
-	vector<LightSource> lightSources = readInputFile.getLightSources();
-	LightSource ambient = lightSources[0];
-	vec3 ambientIntensity = vec3(ambient.Ir, ambient.Ig, ambient.Ib);
+
 	Pigment pigment = readInputFile.getPigments()[sceneObj.pigmentNum];
+	vec3 pigmentColor = vec3(pigment.r, pigment.g, pigment.b);
 	Surface surface = readInputFile.getSurfaces()[sceneObj.surfaceNum];
-	vec3 Ia = ambientIntensity * surface.ka;
 
 	vec3 lightIntensity = vec3(lightSource.Ir, lightSource.Ig, lightSource.Ib);
-	float d = dot(lightSource.LightPos - P, lightSource.LightPos - P);
-	vec3 attenuation = lightSource.a + d * lightSource.b + d * d*lightSource.c;
+	float d = sqrt(dot(lightSource.LightPos - P, lightSource.LightPos - P));
+	float attenuation = lightSource.a + d * lightSource.b + d * d*lightSource.c;
 	vec3 l = normalize(lightSource.LightPos - P);
-	vec3 h = normalize(readInputFile.getCamera().eye - P + l);
+	vec3 v = normalize(readInputFile.getCamera().eye - P);
+	vec3 h = normalize(l+v);
 	vec3 Id = max((double)dot(l, normal), 0.0);
 	vec3 Is = pow(max((double)dot(normal, h), 0.0), surface.shineness);
 
-	return Ia + attenuation * (Id*surface.kd + Is * surface.ks);
+	return (lightIntensity / attenuation) * (Id*surface.kd*pigmentColor + Is * surface.ks);
+}
+
+void RayTracing::outputToPPM(vec3** arr) {
+	int width = readInputFile.getWidth();
+	int height = readInputFile.getHeight();
+	int i, j;
+	FILE *fp = fopen("first.ppm", "wb"); /* b - binary mode */
+	fprintf(fp, "P6\n%d %d\n255\n", width, height);
+	for (j = 0; j < height; j++)
+	{
+		for (i = 0; i < width; i++)
+		{
+			unsigned char color[3];
+			color[0] = (unsigned char)(arr[j][i].x >= 1.0 ? 255 : (arr[j][i].x <= 0.0 ? 0 : (int)floor(arr[j][i].x  * 255.0)));  /* red */
+			color[1] = (unsigned char)(arr[j][i].y >= 1.0 ? 255 : (arr[j][i].y <= 0.0 ? 0 : (int)floor(arr[j][i].y  * 255.0)));   /* green */
+			color[2] = (unsigned char)(arr[j][i].z >= 1.0 ? 255 : (arr[j][i].z <= 0.0 ? 0 : (int)floor(arr[j][i].z  * 255.0)));  /* blue */
+			(void)fwrite(color, 1, 3, fp);
+		}
+	}
+	(void)fclose(fp);
 }

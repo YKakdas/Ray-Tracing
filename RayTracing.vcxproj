@@ -89,7 +89,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClCompile Include="RayTracing.cpp" />
     <ClCompile Include="ReadInputFile.cpp" />
+    <ClCompile Include="SphereIntersection.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Angel.h" />
@@ -160,6 +161,7 @@
     <ClInclude Include="mat.h" />
     <ClInclude Include="ObjectTypes.h" />
     <ClInclude Include="Ray.h" />
+    <ClInclude Include="RayTracing.h" />
     <ClInclude Include="ReadInputFile.h" />
     <ClInclude Include="SphereIntersection.h" />
     <ClInclude Include="vec.h" />
