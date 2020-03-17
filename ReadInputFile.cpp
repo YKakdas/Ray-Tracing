@@ -25,7 +25,7 @@ const vector<Pigment> &ReadInputFile::getPigments() {
 const Camera &ReadInputFile::getCamera(void) {
 	return this->camera;
 }
-void ReadInputFile::fillObjectsFromFile(string fileName)
+void ReadInputFile::fillObjectsFromFile(string &fileName)
 {
 	string line;
 	ifstream inputFile(fileName);
@@ -71,7 +71,7 @@ void ReadInputFile::fillObjectsFromFile(string fileName)
 					stringstream ss(line);
 					float x, y, z, Ir, Ig, Ib, a, b, c;
 					ss >> x >> y >> z >> Ir >> Ig >> Ib >> a >> b >> c;
-					this->lightSources.push_back({ x,y,z,Ir,Ig,Ib,a,b,c });
+					this->lightSources.push_back({ {x,y,z},Ir,Ig,Ib,a,b,c });
 					if (i != this->numberOfLightSources - 1) {
 						getline(inputFile, line);
 					}
@@ -123,7 +123,7 @@ void ReadInputFile::fillObjectsFromFile(string fileName)
 					int pigmentNum, surfaceNum;
 					float x, y, z, radius;
 					ss >> pigmentNum >> surfaceNum >> type >> x >> y >> z >> radius;
-					this->sceneObjs.push_back({ pigmentNum,surfaceNum,type,x,y,z,radius });
+					this->sceneObjs.push_back({ pigmentNum,surfaceNum,type,{x,y,z},radius });
 					if (i != this->numberOfSceneObjs - 1) {
 						getline(inputFile, line);
 					}

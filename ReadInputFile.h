@@ -39,6 +39,6 @@ public:
 	const vector<SceneObj> &getSceneObjs(void);
 	const vector<Pigment> &getPigments(void);
 	const Camera &getCamera(void);
-	void fillObjectsFromFile(string fileName);
+	void fillObjectsFromFile(string &fileName);
 };
 #endif

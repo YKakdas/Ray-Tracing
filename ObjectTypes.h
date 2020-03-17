@@ -3,8 +3,10 @@
 #include "Angel.h"
 #include <string>
 using namespace std;
+
 typedef struct LightSource {
-	float x, y, z, Ir, Ig, Ib, a, b, c;
+	vec3 LightPos;
+	float Ir, Ig, Ib, a, b, c;
 };
 
 typedef struct Pigment {
@@ -25,7 +27,8 @@ typedef struct SceneObj {
 	int pigmentNum;
 	int surfaceNum;
 	string type;
-	float x, y, z, radius;
+	vec3 center;
+    float radius;
 };
 #endif // !OBJECT_TYPES_H
 
