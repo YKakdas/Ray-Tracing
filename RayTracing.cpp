@@ -7,16 +7,25 @@
 #include "SphereIntersection.h"
 #include <algorithm>
 
-ReadInputFile readInputFile("test1.in");
+ReadInputFile readInputFile("test2.in");
 RayTracing tracer;
 SphereIntersection sphereIntersection;
 vec3 backgroundColor = vec3(0.5, 0.5, 0.5);
-
+LightSource ambient;
+vec3 ambientIntensity = vec3(ambient.Ir, ambient.Ig, ambient.Ib);
+vector<LightSource> lightSources;
+vector<Surface> surfaces;
+vector<Pigment> pigments;
+Camera camera;
 int main()
 {
 	int columns = readInputFile.getWidth();
 	int rows = readInputFile.getHeight();
-	Camera camera = readInputFile.getCamera();
+	lightSources = readInputFile.getLightSources();
+	ambient = lightSources[0];
+	surfaces = readInputFile.getSurfaces();
+	pigments = readInputFile.getPigments();
+	camera = readInputFile.getCamera();
 
 	vec3** arr = new vec3*[rows];
 	for (int i = 0; i < rows; i++) {
@@ -32,7 +41,7 @@ int main()
 		for (int j = 0; j < columns; j++) {
 			float px = w * j / columns - w / 2;
 			float py = -h * i / rows + h / 2;
-			vec3 pixel = camera.eye + px * cx + py * cy + (-1.7)*cz;
+			vec3 pixel = camera.eye + px * cx + py * cy + (-1.0)*cz;
 			Ray ray(camera.eye, pixel);
 			vec3 color = tracer.trace(ray);
 			arr[i][j] = color;
@@ -44,6 +53,7 @@ int main()
 vec3 RayTracing::trace(Ray &ray) {
 	vector<SceneObj> sceneObjects = readInputFile.getSceneObjs();
 	vector<float> tValues;
+
 	vec3 localC = vec3(0, 0, 0);
 	for (int i = 0; i < sceneObjects.size(); i++) {
 		SceneObj sceneObj = sceneObjects[i];
@@ -70,19 +80,18 @@ vec3 RayTracing::trace(Ray &ray) {
 		}
 		vec3 P = sphereIntersection.intersectionPoint(ray, min);
 		//TODO check backward normals
-		vec3 normal = normalize(P - sceneObjects[whichObj].center);
-		vector<LightSource> lightSources = readInputFile.getLightSources();
+		vec3 normal;
 
-		LightSource ambient = lightSources[0];
-		vec3 ambientIntensity = vec3(ambient.Ir, ambient.Ig, ambient.Ib);
-		Surface surface = readInputFile.getSurfaces()[sceneObjects[whichObj].surfaceNum];
+		normal = normalize(P - sceneObjects[whichObj].center);
+
+		Surface surface = surfaces[sceneObjects[whichObj].surfaceNum];
 		vec3 Ia = ambientIntensity * surface.ka;
-		Pigment pigment = readInputFile.getPigments()[sceneObjects[whichObj].pigmentNum];
+		Pigment pigment =pigments[sceneObjects[whichObj].pigmentNum];
 		vec3 pigmentColor = vec3(pigment.r, pigment.g, pigment.b);
 		localC = Ia * pigmentColor;
 
 		for (int i = 1; i < lightSources.size(); i++) {
-			if (isVisible(P, lightSources[i])) {
+			if (isVisible(P, lightSources[i], sceneObjects)) {
 				localC += phong(P, lightSources[i], normal, sceneObjects[whichObj]);
 			}
 		}
@@ -90,8 +99,8 @@ vec3 RayTracing::trace(Ray &ray) {
 	return localC;
 }
 
-bool RayTracing::isVisible(vec3 point, LightSource lightSource) {
-	vector<SceneObj> sceneObjects = readInputFile.getSceneObjs();
+bool RayTracing::isVisible(vec3 point, LightSource lightSource, vector<SceneObj> sceneObjects) {
+
 	vec3 dest = lightSource.LightPos;
 	Ray ray(point, dest);
 	for (int i = 0; i < sceneObjects.size(); i++) {
@@ -106,16 +115,16 @@ bool RayTracing::isVisible(vec3 point, LightSource lightSource) {
 
 vec3 RayTracing::phong(vec3 P, LightSource lightSource, vec3 normal, SceneObj sceneObj) {
 
-	Pigment pigment = readInputFile.getPigments()[sceneObj.pigmentNum];
+	Pigment pigment = pigments[sceneObj.pigmentNum];
 	vec3 pigmentColor = vec3(pigment.r, pigment.g, pigment.b);
-	Surface surface = readInputFile.getSurfaces()[sceneObj.surfaceNum];
+	Surface surface = surfaces[sceneObj.surfaceNum];
 
 	vec3 lightIntensity = vec3(lightSource.Ir, lightSource.Ig, lightSource.Ib);
 	float d = sqrt(dot(lightSource.LightPos - P, lightSource.LightPos - P));
 	float attenuation = lightSource.a + d * lightSource.b + d * d*lightSource.c;
 	vec3 l = normalize(lightSource.LightPos - P);
-	vec3 v = normalize(readInputFile.getCamera().eye - P);
-	vec3 h = normalize(l+v);
+	vec3 v = normalize(camera.eye - P);
+	vec3 h = normalize(l + v);
 	vec3 Id = max((double)dot(l, normal), 0.0);
 	vec3 Is = pow(max((double)dot(normal, h), 0.0), surface.shineness);
 
