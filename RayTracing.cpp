@@ -112,19 +112,40 @@ bool RayTracing::isVisible(vec3 point, LightSource lightSource, vector<SceneObj>
 
 	vec3 dest = lightSource.LightPos;
 	Ray ray(dest, point);
+	float esp = 0.001;
+	vector<float> tValues;
 	for (int i = 0; i < sceneObjects.size(); i++) {
 		SceneObj sceneObj = sceneObjects[i];
 		bool isInside;
 		float t = sphereIntersection.intersect(sceneObj.center, sceneObj.radius, ray, isInside);
-		vec3 newPoint = sphereIntersection.intersectionPoint(ray, t);
-		if (t > 0 && newPoint.x == point.x && newPoint.y == point.y && newPoint.z == point.z) {
-			return true;
-		}
-		else if (t < 0 && newPoint.x == point.x && newPoint.y == point.y && newPoint.z == point.z) {
-			return false;
+		tValues.push_back(t);
+	}
+
+	bool temp = false;
+	for (int i = 0; i < tValues.size(); i++) {
+		if (tValues[i] >= 0) {
+			temp = true;
+			break;
 		}
 	}
-	return true;
+	if (!temp) {
+		return false;
+	}
+
+	float min = FLT_MAX;
+	for (int i = 0; i < tValues.size(); i++) {
+		if (tValues[i] >= 0 && tValues[i] <= min) {
+			min = tValues[i];
+		}
+	}
+
+	vec3 newPoint = sphereIntersection.intersectionPoint(ray, min);
+	if (min > 0 && -esp < (newPoint.x - point.x) && (newPoint.x - point.x) < esp
+		&& -esp < (newPoint.y - point.y) && (newPoint.y - point.y) < esp
+		&& -esp < (newPoint.z - point.z) && (newPoint.z - point.z) < esp) {
+		return true;
+	}
+	return false;
 }
 
 vec3 RayTracing::phong(vec3 P, LightSource lightSource, vec3 normal, SceneObj sceneObj) {

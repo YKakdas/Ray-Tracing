@@ -14,15 +14,18 @@ float SphereIntersection::intersect(const vec3 &center, float radius, Ray &ray, 
 		float root1 = (-b - sqrt(discriminant)) / (2.0*a);
 		float root2 = (-b + sqrt(discriminant)) / (2.0*a);
 
-		if (root1 > 0 && root2 < 0) return root1;
+		if (root1 < 0 && root2 < 0) {
+			return root1;
+		}
+		else if (root1 > 0 && root2 < 0) {
+			isInside = true;
+			return root1;
+		}
 		else if (root2 > 0 && root1 < 0) {
 			isInside = true;
 			return root2;
 		}
-		else if (root1 < 0 && root2 < 0) {
-			isInside = true;
-			return root1;
-		}
+		
 		else if (root1 > 0 && root2 > 0) {
 			if (root1 < root2) {
 				return root1;
