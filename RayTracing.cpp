@@ -7,7 +7,7 @@
 #include "SphereIntersection.h"
 #include <algorithm>
 
-ReadInputFile readInputFile("test2.in");
+ReadInputFile readInputFile;
 RayTracing tracer;
 SphereIntersection sphereIntersection;
 vec3 backgroundColor = vec3(0.5, 0.5, 0.5);
@@ -17,8 +17,9 @@ vec3 ambientIntensity;
 vector<Surface> surfaces;
 vector<Pigment> pigments;
 Camera camera;
-int main()
+int main(int argc, char** argv)
 {
+	readInputFile.fillObjectsFromFile(argv[1]);
 	int columns = readInputFile.getWidth();
 	int rows = readInputFile.getHeight();
 	lightSources = readInputFile.getLightSources();
@@ -169,8 +170,9 @@ vec3 RayTracing::phong(vec3 P, LightSource lightSource, vec3 normal, SceneObj sc
 void RayTracing::outputToPPM(vec3** arr) {
 	int width = readInputFile.getWidth();
 	int height = readInputFile.getHeight();
+	string outputFileName = readInputFile.getOutputFileName();
 	int i, j;
-	FILE *fp = fopen("first.ppm", "wb"); /* b - binary mode */
+	FILE *fp = fopen(outputFileName.c_str(), "wb"); /* b - binary mode */
 	fprintf(fp, "P6\n%d %d\n255\n", width, height);
 	for (j = 0; j < height; j++)
 	{
