@@ -25,7 +25,7 @@ const vector<Pigment> &ReadInputFile::getPigments() {
 const Camera &ReadInputFile::getCamera(void) {
 	return this->camera;
 }
-void ReadInputFile::fillObjectsFromFile(string &fileName)
+void ReadInputFile::fillObjectsFromFile(const char* fileName)
 {
 	string line;
 	ifstream inputFile(fileName);
