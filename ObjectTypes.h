@@ -30,5 +30,11 @@ typedef struct SceneObj {
 	vec3 center;
     float radius;
 };
+
+typedef struct ray {
+	vec3 origin;
+	vec3 destination;
+	vec3 direction;
+};
 #endif // !OBJECT_TYPES_H
 

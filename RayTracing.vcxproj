@@ -153,17 +153,14 @@
   <ItemGroup>
     <ClCompile Include="RayTracing.cpp" />
     <ClCompile Include="ReadInputFile.cpp" />
-    <ClCompile Include="SphereIntersection.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Angel.h" />
     <ClInclude Include="CheckError.h" />
     <ClInclude Include="mat.h" />
     <ClInclude Include="ObjectTypes.h" />
-    <ClInclude Include="Ray.h" />
     <ClInclude Include="RayTracing.h" />
     <ClInclude Include="ReadInputFile.h" />
-    <ClInclude Include="SphereIntersection.h" />
     <ClInclude Include="vec.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

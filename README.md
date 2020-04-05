@@ -1,4 +1,7 @@
-# Ray-Tracing
+## Ray Tracing
+ 
+#### IMPORTANT NOTE
+- For some input files, especially reflective ones, takes couple of minutes to be done. Please be patient, it will produce the ppm file :)
 
 This program is to implement simple ray tracing algorithm. It takes an input file which obtains information about scene and produces ppm file according to 
 input file. Input file should be given as command line argument. If you run this program on VS, then you can give command line argument as follows:
@@ -21,7 +24,7 @@ input file. Input file should be given as command line argument. If you run this
 - `sphere(keyword) x y z r // (x,y,z) center coordinates of object and r is radius` For now, program only supports spheres.
 
 #### Output File
-Output will be in the format of `PPM P6` and can be viewed by `GIMP`
+- Output will be in the format of `PPM P6` and can be viewed by `GIMP`
 #### Dependencies
 - Program should run in `win32` environment.
 
