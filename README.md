@@ -36,8 +36,14 @@ input file. Input file should be given as command line argument. If you run this
 - Program should run in `win32` environment.
 
 #### Examples
-![Test1](Screenshots/test1.PNG) ![Test2](Screenshots/test2.PNG)
-![Test1 Reflective](Screenshots/test1reflective.PNG) ![Test2 Reflective](Screenshots/test2reflective.PNG)
+- Test1 
+![Test1](Screenshots/test1.PNG) 
+- Test2
+![Test2](Screenshots/test2.PNG)
+- Test1 Reflective
+![Test1 Reflective](Screenshots/test1reflective.PNG)
+- Test2 Reflective
+![Test2 Reflective](Screenshots/test2reflective.PNG)
 
 
 #### Yaşar Can Kakdaş
