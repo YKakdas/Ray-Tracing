@@ -7,6 +7,13 @@ This program is to implement simple ray tracing algorithm. It takes an input fil
 input file. Input file should be given as command line argument. If you run this program on VS, then you can give command line argument as follows:
    - `Project Properties` -> `Debugging` -> `Command Arguments` -> `test1.in`
 
+#### Elements
+      • sphere objects
+      • solid colored objects
+      • ambient, diffuse and specular shading
+      • shadows
+      • reflection.
+
 #### Input File
 - `name_of_output_file.ppm`
 - `width(int) height(int)`
@@ -27,5 +34,10 @@ input file. Input file should be given as command line argument. If you run this
 - Output will be in the format of `PPM P6` and can be viewed by `GIMP`
 #### Dependencies
 - Program should run in `win32` environment.
+
+#### Examples
+![Test1](Screenshots/test1.PNG) ![Test2](Screenshots/test2.PNG)
+![Test1 Reflective](Screenshots/test1reflective.PNG) ![Test2 Reflective](Screenshots/test2reflective.PNG)
+
 
 #### Yaşar Can Kakdaş
